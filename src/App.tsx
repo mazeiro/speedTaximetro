@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, Square, Navigation, DollarSign, Clock, Route, Info, ChevronDown, ChevronUp, Zap } from 'lucide-react';
+import { Play, Pause, Square, Navigation, DollarSign, Clock, Route, Info, ChevronDown, ChevronUp, Zap, MapPin } from 'lucide-react';
+import { initializeGoogleMaps, calculateDistanceWithGoogleMaps, isGoogleMapsReady, getLocationInfo } from './services/googleMaps';
 
 interface Position {
   latitude: number;
@@ -52,6 +53,8 @@ function App() {
   const [showRates, setShowRates] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [lastTripSummary, setLastTripSummary] = useState<TripSummary | null>(null);
+  const [googleMapsReady, setGoogleMapsReady] = useState(false);
+  const [currentAddress, setCurrentAddress] = useState<string>('');
   
   const lastPosition = useRef<Position | null>(null);
   const startTime = useRef<number | null>(null);
@@ -59,17 +62,14 @@ function App() {
   const watchId = useRef<number | null>(null);
   const intervalId = useRef<number | null>(null);
 
-  // Función para calcular distancia entre dos puntos (Haversine formula)
+  // Función para calcular distancia usando Google Maps API o Haversine como fallback
   const calculateDistance = (pos1: Position, pos2: Position): number => {
-    const R = 6371; // Radio de la Tierra en kilómetros
-    const dLat = (pos2.latitude - pos1.latitude) * Math.PI / 180;
-    const dLon = (pos2.longitude - pos1.longitude) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(pos1.latitude * Math.PI / 180) * Math.cos(pos2.latitude * Math.PI / 180) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
+    return calculateDistanceWithGoogleMaps(
+      pos1.latitude,
+      pos1.longitude,
+      pos2.latitude,
+      pos2.longitude
+    );
   };
 
   // Calcular costo basado en distancia y tiempo
@@ -84,6 +84,20 @@ function App() {
 
   // Inicializar geolocalización
   useEffect(() => {
+    // Inicializar Google Maps API
+    const initMaps = async () => {
+      try {
+        await initializeGoogleMaps();
+        setGoogleMapsReady(true);
+        console.log('Google Maps API inicializada correctamente');
+      } catch (error) {
+        console.error('Error inicializando Google Maps API:', error);
+        setGoogleMapsReady(false);
+      }
+    };
+
+    initMaps();
+
     if ('geolocation' in navigator) {
       setGpsStatus('available');
     } else {
@@ -101,11 +115,18 @@ function App() {
 
     setCurrentPosition(newPosition);
 
+    // Obtener información de dirección si Google Maps está listo
+    if (googleMapsReady) {
+      getLocationInfo(newPosition.latitude, newPosition.longitude)
+        .then(address => setCurrentAddress(address))
+        .catch(error => console.error('Error obteniendo dirección:', error));
+    }
+
     if (tripData.isRunning && !tripData.isPaused && lastPosition.current) {
       const distanceIncrement = calculateDistance(lastPosition.current, newPosition);
       
-      // Solo contar distancia si el movimiento es significativo (más de 10 metros)
-      if (distanceIncrement > 0.01) {
+      // Solo contar distancia si el movimiento es significativo (más de 5 metros)
+      if (distanceIncrement > 0.005) {
         console.log('Distancia incremento:', distanceIncrement, 'km');
         setTripData(prev => {
           const newDistance = prev.distance + distanceIncrement;
@@ -151,7 +172,7 @@ function App() {
           },
           {
             enableHighAccuracy: true,
-            timeout: 5000,
+            timeout: 10000,
             maximumAge: 0
           }
         );
@@ -367,12 +388,25 @@ function App() {
               </div>
               <div className="text-xs text-gray-400 font-semibold">GPS</div>
               <div className="font-bold text-xs text-white">
-                {gpsStatus === 'available' && currentPosition ? 'Activo' : 
+                {gpsStatus === 'available' && currentPosition ? (googleMapsReady ? 'Maps+GPS' : 'GPS Básico') : 
                  gpsStatus === 'requesting' ? 'Buscando...' :
                  gpsStatus === 'denied' ? 'Sin acceso' : 'No disponible'}
               </div>
             </div>
           </div>
+
+          {/* Información de ubicación actual */}
+          {currentPosition && currentAddress && (
+            <div className="mt-4 bg-gradient-to-br from-gray-800 to-gray-900 p-3 rounded-xl border border-gray-700 shadow-lg">
+              <div className="flex items-center justify-center mb-2">
+                <MapPin className="w-4 h-4 text-yellow-400 mr-2" />
+                <span className="text-xs text-gray-400 font-semibold">UBICACIÓN ACTUAL</span>
+              </div>
+              <div className="text-xs text-white text-center break-words">
+                {currentAddress}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Controles */}
@@ -454,6 +488,11 @@ function App() {
                     <div className="flex justify-between"><span>6-7 km:</span><span className="text-yellow-400">$70 MXN</span></div>
                     <div className="flex justify-between"><span>7-8 km:</span><span className="text-yellow-400">$80 MXN</span></div>
                     <div className="flex justify-between"><span>8+ km:</span><span className="text-yellow-400">$80 MXN</span></div>
+                    <div className="text-center mt-2 pt-2 border-t border-gray-600">
+                      <span className="text-yellow-400 text-xs">
+                        {googleMapsReady ? '✓ Google Maps Activo' : '⚠ GPS Básico'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -469,6 +508,12 @@ function App() {
           {gpsStatus === 'unavailable' && (
             <div className="mt-4 bg-gradient-to-r from-orange-600 to-orange-700 text-white p-4 rounded-xl text-center border border-orange-500 shadow-lg">
               <p className="text-sm">GPS no disponible en este dispositivo.</p>
+            </div>
+          )}
+
+          {!googleMapsReady && gpsStatus === 'available' && (
+            <div className="mt-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-xl text-center border border-blue-500 shadow-lg">
+              <p className="text-sm">Usando GPS básico. Google Maps no disponible.</p>
             </div>
           )}
         </div>
