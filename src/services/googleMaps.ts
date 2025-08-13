@@ -30,7 +30,10 @@ export const calculateDistanceWithGoogleMaps = (
   lat2: number,
   lng2: number
 ): number => {
+  console.log('🧮 Calculando distancia entre:', { lat1, lng1 }, 'y', { lat2, lng2 });
+  
   if (!isGoogleMapsLoaded || !window.google) {
+    console.log('⚠️ Google Maps no disponible, usando Haversine');
     // Fallback al cálculo Haversine si Google Maps no está disponible
     return calculateHaversineDistance(lat1, lng1, lat2, lng2);
   }
@@ -43,7 +46,9 @@ export const calculateDistanceWithGoogleMaps = (
     const distance = google.maps.geometry.spherical.computeDistanceBetween(point1, point2);
     
     // Convertir de metros a kilómetros
-    return distance / 1000;
+    const distanceKm = distance / 1000;
+    console.log('✅ Distancia Google Maps:', distance, 'metros =', distanceKm, 'km');
+    return distanceKm;
   } catch (error) {
     console.error('Error calculando distancia con Google Maps:', error);
     // Fallback al cálculo Haversine
@@ -66,7 +71,9 @@ const calculateHaversineDistance = (
     Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
     Math.sin(dLng/2) * Math.sin(dLng/2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R * c;
+  const distance = R * c;
+  console.log('✅ Distancia Haversine:', distance, 'km');
+  return distance;
 };
 
 export const isGoogleMapsReady = (): boolean => {

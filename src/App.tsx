@@ -113,6 +113,7 @@ function App() {
       timestamp: Date.now()
     };
 
+    console.log('Nueva posición GPS:', newPosition);
     setCurrentPosition(newPosition);
 
     // Obtener información de dirección si Google Maps está listo
@@ -125,13 +126,17 @@ function App() {
     if (tripData.isRunning && !tripData.isPaused && lastPosition.current) {
       const distanceIncrement = calculateDistance(lastPosition.current, newPosition);
       
-      // Solo contar distancia si el movimiento es significativo (más de 5 metros)
-      if (distanceIncrement > 0.005) {
-        console.log('Distancia incremento:', distanceIncrement, 'km');
+      console.log('Distancia calculada:', distanceIncrement, 'km');
+      console.log('Posición anterior:', lastPosition.current);
+      console.log('Posición actual:', newPosition);
+      
+      // Solo contar distancia si el movimiento es significativo (más de 3 metros)
+      if (distanceIncrement > 0.003) {
+        console.log('✅ Movimiento detectado - Distancia incremento:', distanceIncrement, 'km');
         setTripData(prev => {
           const newDistance = prev.distance + distanceIncrement;
           const newCost = calculateCost(newDistance, prev.waitingTime / 60);
-          console.log('Nueva distancia total:', newDistance, 'km, Nuevo costo:', newCost);
+          console.log('📊 Nueva distancia total:', newDistance.toFixed(3), 'km, Nuevo costo: $', newCost);
           
           return {
             ...prev,
@@ -139,6 +144,8 @@ function App() {
             cost: newCost
           };
         });
+      } else {
+        console.log('⚠️ Movimiento muy pequeño, no se cuenta:', distanceIncrement, 'km');
       }
     }
 
@@ -150,10 +157,12 @@ function App() {
     if (gpsStatus !== 'available') return;
 
     setGpsStatus('requesting');
+    console.log('🚀 Iniciando viaje...');
     
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setGpsStatus('available');
+        console.log('📍 Posición inicial obtenida:', position.coords);
         handlePositionUpdate(position);
         startTime.current = Date.now();
         
@@ -172,11 +181,18 @@ function App() {
           },
           {
             enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0
+            timeout: 15000,
+            maximumAge: 1000
           }
         );
+        
+        console.log('✅ Seguimiento GPS iniciado con watchId:', watchId.current);
       },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
+      }
       (error) => {
         console.error('Error obteniendo posición:', error);
         setGpsStatus('denied');
@@ -189,6 +205,7 @@ function App() {
     setTripData(prev => {
       if (!prev.isPaused) {
         // Pausar - iniciar conteo de tiempo de espera
+        console.log('⏸️ Pausando viaje...');
         pauseStartTime.current = Date.now();
         
         // Iniciar contador de tiempo de espera
@@ -206,6 +223,7 @@ function App() {
         return { ...prev, isPaused: true };
       } else {
         // Reanudar - detener conteo de tiempo de espera
+        console.log('▶️ Reanudando viaje...');
         if (intervalId.current) {
           clearInterval(intervalId.current);
           intervalId.current = null;
@@ -219,6 +237,9 @@ function App() {
 
   // Detener y reiniciar el taxímetro
   const stopTrip = () => {
+    console.log('🛑 Finalizando viaje...');
+    console.log('📊 Resumen final - Distancia:', tripData.distance.toFixed(3), 'km, Costo: $', tripData.cost);
+    
     // Guardar resumen del viaje antes de reiniciar
     if (tripData.isRunning && (tripData.distance > 0 || tripData.waitingTime > 0)) {
       const summary: TripSummary = {
@@ -239,6 +260,7 @@ function App() {
 
     if (watchId.current) {
       navigator.geolocation.clearWatch(watchId.current);
+      console.log('🔄 Seguimiento GPS detenido');
       watchId.current = null;
     }
     
@@ -405,6 +427,11 @@ function App() {
               <div className="text-xs text-white text-center break-words">
                 {currentAddress}
               </div>
+              {tripData.isRunning && (
+                <div className="text-xs text-yellow-400 text-center mt-1">
+                  Lat: {currentPosition.latitude.toFixed(6)}, Lng: {currentPosition.longitude.toFixed(6)}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -514,6 +541,17 @@ function App() {
           {!googleMapsReady && gpsStatus === 'available' && (
             <div className="mt-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-xl text-center border border-blue-500 shadow-lg">
               <p className="text-sm">Usando GPS básico. Google Maps no disponible.</p>
+            </div>
+          )}
+          
+          {/* Panel de debug para desarrollo */}
+          {tripData.isRunning && currentPosition && (
+            <div className="mt-4 bg-gradient-to-r from-purple-800 to-purple-900 text-white p-3 rounded-xl text-center border border-purple-500 shadow-lg">
+              <div className="text-xs">
+                <div>Estado: {tripData.isPaused ? 'Pausado' : 'Activo'}</div>
+                <div>Precisión GPS: {googleMapsReady ? 'Google Maps' : 'Haversine'}</div>
+                <div>Última actualización: {new Date().toLocaleTimeString()}</div>
+              </div>
             </div>
           )}
         </div>
