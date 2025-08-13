@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, Square, Navigation, DollarSign, Clock, Route, Info, ChevronDown, ChevronUp, Zap, MapPin } from 'lucide-react';
 import { initializeGoogleMaps, calculateDistanceWithGoogleMaps, isGoogleMapsReady, getLocationInfo } from './services/googleMaps';
+import InstallPrompt from './components/InstallPrompt';
+import { useServiceWorker } from './hooks/useServiceWorker';
 
 interface Position {
   latitude: number;
@@ -39,6 +41,9 @@ const RATES = {
 };
 
 function App() {
+  // Registrar service worker
+  useServiceWorker();
+
   const [tripData, setTripData] = useState<TripData>({
     distance: 0,
     duration: 0,
@@ -315,6 +320,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 p-4">
+      <InstallPrompt />
       <div className="max-w-md mx-auto">
         {/* Modal de resumen del viaje */}
         {showSummary && lastTripSummary && (
