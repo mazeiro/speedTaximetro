@@ -188,14 +188,14 @@ function App() {
         
         console.log('✅ Seguimiento GPS iniciado con watchId:', watchId.current);
       },
+      (error) => {
+        console.error('Error obteniendo posición:', error);
+        setGpsStatus('denied');
+      },
       {
         enableHighAccuracy: true,
         timeout: 15000,
         maximumAge: 0
-      }
-      (error) => {
-        console.error('Error obteniendo posición:', error);
-        setGpsStatus('denied');
       }
     );
   };
