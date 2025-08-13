@@ -427,11 +427,6 @@ function App() {
               <div className="text-xs text-white text-center break-words">
                 {currentAddress}
               </div>
-              {tripData.isRunning && (
-                <div className="text-xs text-yellow-400 text-center mt-1">
-                  Lat: {currentPosition.latitude.toFixed(6)}, Lng: {currentPosition.longitude.toFixed(6)}
-                </div>
-              )}
             </div>
           )}
         </div>
