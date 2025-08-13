@@ -1,40 +1,14 @@
-<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Fondo circular negro -->
-  <circle cx="256" cy="256" r="256" fill="#000000"/>
-  
-  <!-- Carretera base -->
-  <path d="M100 350 L412 350 Q430 350 430 332 L430 180 Q430 162 412 162 L100 162 Q82 162 82 180 L82 332 Q82 350 100 350 Z" fill="#374151" stroke="#6B7280" stroke-width="2"/>
-  
-  <!-- Líneas divisorias de la carretera -->
-  <rect x="140" y="245" width="40" height="8" rx="4" fill="#FACC15"/>
-  <rect x="200" y="245" width="40" height="8" rx="4" fill="#FACC15"/>
-  <rect x="260" y="245" width="40" height="8" rx="4" fill="#FACC15"/>
-  <rect x="320" y="245" width="40" height="8" rx="4" fill="#FACC15"/>
-  
-  <!-- Bordes de la carretera -->
-  <rect x="82" y="162" width="348" height="6" fill="#FACC15"/>
-  <rect x="82" y="344" width="348" height="6" fill="#FACC15"/>
-  
-  <!-- Rayo principal -->
-  <path d="M200 80 L280 80 L220 200 L260 200 L180 320 L240 200 L200 200 L200 80 Z" fill="#FACC15" stroke="#F59E0B" stroke-width="3" stroke-linejoin="round"/>
-  
-  <!-- Efectos de brillo en el rayo -->
-  <path d="M210 90 L270 90 L230 180 L250 180 L200 280 L230 180 L210 180 L210 90 Z" fill="#FEF3C7" opacity="0.8"/>
-  
-  <!-- Rayo secundario más pequeño -->
-  <path d="M320 120 L360 120 L340 180 L355 180 L315 240 L340 180 L320 180 L320 120 Z" fill="#FACC15" opacity="0.7"/>
-  
-  <!-- Efectos de velocidad/movimiento -->
-  <path d="M50 200 L120 200" stroke="#FACC15" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
-  <path d="M50 220 L110 220" stroke="#FACC15" stroke-width="3" stroke-linecap="round" opacity="0.4"/>
-  <path d="M50 240 L100 240" stroke="#FACC15" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
-  
-  <!-- Texto Speed Cabs -->
-  <text x="256" y="420" font-family="Arial, sans-serif" font-size="32" font-weight="bold" text-anchor="middle" fill="#FACC15">SPEED</text>
-  <text x="256" y="450" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#FACC15">CABS</text>
-  
-  <!-- Efectos de resplandor -->
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <defs>
+    <linearGradient id="roadGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#444444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#222222;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="lightningGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#facc15;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#eab308;stop-opacity:1" />
+    </linearGradient>
     <filter id="glow">
       <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
       <feMerge> 
@@ -44,6 +18,33 @@
     </filter>
   </defs>
   
-  <!-- Aplicar resplandor al rayo principal -->
-  <path d="M200 80 L280 80 L220 200 L260 200 L180 320 L240 200 L200 200 L200 80 Z" fill="none" stroke="#FACC15" stroke-width="2" filter="url(#glow)" opacity="0.8"/>
+  <!-- Fondo negro -->
+  <rect width="512" height="512" fill="#000000"/>
+  
+  <!-- Carretera con perspectiva -->
+  <path d="M 50 350 L 150 450 L 362 450 L 462 350 L 462 512 L 50 512 Z" fill="url(#roadGradient)"/>
+  
+  <!-- Líneas divisorias de la carretera -->
+  <rect x="80" y="380" width="40" height="8" fill="#facc15" opacity="0.9"/>
+  <rect x="140" y="390" width="40" height="8" fill="#facc15" opacity="0.9"/>
+  <rect x="200" y="400" width="40" height="8" fill="#facc15" opacity="0.9"/>
+  <rect x="260" y="410" width="40" height="8" fill="#facc15" opacity="0.9"/>
+  <rect x="320" y="420" width="40" height="8" fill="#facc15" opacity="0.9"/>
+  <rect x="380" y="430" width="40" height="8" fill="#facc15" opacity="0.9"/>
+  
+  <!-- Rayo principal -->
+  <path d="M 300 50 L 180 220 L 240 220 L 200 450 L 320 280 L 260 280 Z" 
+        fill="url(#lightningGradient)" 
+        stroke="#ffffff" 
+        stroke-width="3" 
+        filter="url(#glow)"/>
+  
+  <!-- Efectos de velocidad -->
+  <path d="M 350 120 L 380 130 L 350 140" stroke="#facc15" stroke-width="4" fill="none" opacity="0.7"/>
+  <path d="M 360 160 L 400 170 L 360 180" stroke="#facc15" stroke-width="4" fill="none" opacity="0.7"/>
+  <path d="M 340 200 L 370 210 L 340 220" stroke="#facc15" stroke-width="4" fill="none" opacity="0.7"/>
+  
+  <!-- Texto Speed Cabs -->
+  <text x="256" y="480" font-family="Arial, sans-serif" font-size="24" font-weight="bold" 
+        text-anchor="middle" fill="#facc15">SPEED CABS</text>
 </svg>
