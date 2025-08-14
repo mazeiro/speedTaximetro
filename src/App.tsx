@@ -10,6 +10,12 @@ interface Position {
   timestamp: number;
 }
 
+interface OriginPosition {
+  latitude: number;
+  longitude: number;
+  timestamp: number;
+  address?: string;
+}
 interface TripData {
   distance: number;
   duration: number;
@@ -54,12 +60,14 @@ function App() {
   });
 
   const [currentPosition, setCurrentPosition] = useState<Position | null>(null);
+  const [originPosition, setOriginPosition] = useState<OriginPosition | null>(null);
   const [gpsStatus, setGpsStatus] = useState<'unavailable' | 'requesting' | 'available' | 'denied'>('unavailable');
   const [showRates, setShowRates] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [lastTripSummary, setLastTripSummary] = useState<TripSummary | null>(null);
   const [googleMapsReady, setGoogleMapsReady] = useState(false);
   const [currentAddress, setCurrentAddress] = useState<string>('');
+  const [originAddress, setOriginAddress] = useState<string>('');
   
   const lastPosition = useRef<Position | null>(null);
   const startTime = useRef<number | null>(null);
@@ -68,12 +76,12 @@ function App() {
   const intervalId = useRef<number | null>(null);
 
   // Función para calcular distancia usando Google Maps API o Haversine como fallback
-  const calculateDistance = (pos1: Position, pos2: Position): number => {
+  const calculateDistanceFromOrigin = (currentPos: Position, originPos: OriginPosition): number => {
     return calculateDistanceWithGoogleMaps(
-      pos1.latitude,
-      pos1.longitude,
-      pos2.latitude,
-      pos2.longitude
+      originPos.latitude,
+      originPos.longitude,
+      currentPos.latitude,
+      currentPos.longitude
     );
   };
 
@@ -128,30 +136,25 @@ function App() {
         .catch(error => console.error('Error obteniendo dirección:', error));
     }
 
-    if (tripData.isRunning && !tripData.isPaused && lastPosition.current) {
-      const distanceIncrement = calculateDistance(lastPosition.current, newPosition);
+    if (tripData.isRunning && !tripData.isPaused && originPosition) {
+      // Calcular distancia total desde el origen
+      const totalDistance = calculateDistanceFromOrigin(newPosition, originPosition);
       
-      console.log('Distancia calculada:', distanceIncrement, 'km');
-      console.log('Posición anterior:', lastPosition.current);
+      console.log('Distancia total desde origen:', totalDistance, 'km');
+      console.log('Posición origen:', originPosition);
       console.log('Posición actual:', newPosition);
       
-      // Solo contar distancia si el movimiento es significativo (más de 3 metros)
-      if (distanceIncrement > 0.003) {
-        console.log('✅ Movimiento detectado - Distancia incremento:', distanceIncrement, 'km');
-        setTripData(prev => {
-          const newDistance = prev.distance + distanceIncrement;
-          const newCost = calculateCost(newDistance, prev.waitingTime / 60);
-          console.log('📊 Nueva distancia total:', newDistance.toFixed(3), 'km, Nuevo costo: $', newCost);
-          
-          return {
-            ...prev,
-            distance: newDistance,
-            cost: newCost
-          };
-        });
-      } else {
-        console.log('⚠️ Movimiento muy pequeño, no se cuenta:', distanceIncrement, 'km');
-      }
+      // Actualizar distancia total y costo
+      setTripData(prev => {
+        const newCost = calculateCost(totalDistance, prev.waitingTime / 60);
+        console.log('📊 Distancia total:', totalDistance.toFixed(3), 'km, Costo: $', newCost);
+        
+        return {
+          ...prev,
+          distance: totalDistance,
+          cost: newCost
+        };
+      });
     }
 
     lastPosition.current = newPosition;
@@ -168,11 +171,31 @@ function App() {
       (position) => {
         setGpsStatus('available');
         console.log('📍 Posición inicial obtenida:', position.coords);
+        
+        // Establecer posición de origen
+        const origin: OriginPosition = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          timestamp: Date.now()
+        };
+        setOriginPosition(origin);
+        
+        // Obtener dirección de origen si Google Maps está disponible
+        if (googleMapsReady) {
+          getLocationInfo(origin.latitude, origin.longitude)
+            .then(address => {
+              setOriginAddress(address);
+              setOriginPosition(prev => prev ? { ...prev, address } : null);
+            })
+            .catch(error => console.error('Error obteniendo dirección de origen:', error));
+        }
+        
         handlePositionUpdate(position);
         startTime.current = Date.now();
         
         setTripData(prev => ({
           ...prev,
+          distance: 0, // Reiniciar distancia desde 0
           isRunning: true,
           isPaused: false
         }));
@@ -244,6 +267,9 @@ function App() {
   const stopTrip = () => {
     console.log('🛑 Finalizando viaje...');
     console.log('📊 Resumen final - Distancia:', tripData.distance.toFixed(3), 'km, Costo: $', tripData.cost);
+    if (originPosition && originAddress) {
+      console.log('📍 Origen del viaje:', originAddress);
+    }
     
     // Guardar resumen del viaje antes de reiniciar
     if (tripData.isRunning && (tripData.distance > 0 || tripData.waitingTime > 0)) {
@@ -286,6 +312,8 @@ function App() {
     lastPosition.current = null;
     startTime.current = null;
     pauseStartTime.current = null;
+    setOriginPosition(null);
+    setOriginAddress('');
   };
 
   // Limpiar intervalos al desmontar
@@ -435,6 +463,19 @@ function App() {
               </div>
             </div>
           )}
+
+          {/* Información de ubicación de origen durante el viaje */}
+          {tripData.isRunning && originPosition && originAddress && (
+            <div className="mt-2 bg-gradient-to-br from-green-800 to-green-900 p-3 rounded-xl border border-green-700 shadow-lg">
+              <div className="flex items-center justify-center mb-2">
+                <MapPin className="w-4 h-4 text-green-400 mr-2" />
+                <span className="text-xs text-green-400 font-semibold">ORIGEN DEL VIAJE</span>
+              </div>
+              <div className="text-xs text-white text-center break-words">
+                {originAddress}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Controles */}
@@ -551,6 +592,7 @@ function App() {
               <div className="text-xs">
                 <div>Estado: {tripData.isPaused ? 'Pausado' : 'Activo'}</div>
                 <div>Precisión GPS: {googleMapsReady ? 'Google Maps' : 'Haversine'}</div>
+                <div>Origen establecido: {originPosition ? 'Sí' : 'No'}</div>
                 <div>Última actualización: {new Date().toLocaleTimeString()}</div>
               </div>
             </div>
