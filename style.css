@@ -1,0 +1,241 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #1a1a1a, #000);
+    color: white;
+    min-height: 100vh;
+    padding: 10px;
+}
+
+.container {
+    max-width: 400px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    border: 2px solid #facc15;
+}
+
+.header {
+    background: linear-gradient(135deg, #facc15, #f59e0b);
+    color: black;
+    text-align: center;
+    padding: 20px;
+    font-weight: bold;
+}
+
+.header h1 {
+    font-size: 24px;
+    margin-bottom: 5px;
+    letter-spacing: 2px;
+}
+
+.header p {
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+.display {
+    padding: 30px 20px;
+    text-align: center;
+}
+
+.cost-display {
+    font-size: 48px;
+    font-weight: bold;
+    color: #facc15;
+    margin-bottom: 30px;
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 0 20px rgba(250, 204, 21, 0.5);
+}
+
+.currency {
+    font-size: 24px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.info-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(250, 204, 21, 0.3);
+}
+
+.label {
+    font-size: 10px;
+    color: #facc15;
+    font-weight: bold;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+}
+
+.value {
+    font-size: 14px;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+}
+
+.gps-info {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(250, 204, 21, 0.3);
+    text-align: center;
+}
+
+.controls {
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 15px 20px;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-start {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+}
+
+.btn-start:hover:not(:disabled) {
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    transform: translateY(-2px);
+}
+
+.btn-pause {
+    background: linear-gradient(135deg, #facc15, #f59e0b);
+    color: black;
+}
+
+.btn-pause:hover:not(:disabled) {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    transform: translateY(-2px);
+}
+
+.btn-resume {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+}
+
+.btn-resume:hover:not(:disabled) {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    transform: translateY(-2px);
+}
+
+.btn-stop {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.btn-stop:hover:not(:disabled) {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-2px);
+}
+
+.rates {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-top: 1px solid rgba(250, 204, 21, 0.3);
+}
+
+.rates h3 {
+    color: #facc15;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.rate-table {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rate-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 12px;
+}
+
+.rate-row:last-child {
+    border-bottom: none;
+}
+
+.rate-row span:last-child {
+    color: #facc15;
+    font-weight: bold;
+}
+
+/* Estados del GPS */
+.gps-available { color: #22c55e; }
+.gps-searching { color: #facc15; }
+.gps-error { color: #ef4444; }
+
+/* Estados del taxímetro */
+.status-running { color: #22c55e; }
+.status-paused { color: #facc15; }
+.status-stopped { color: #ef4444; }
+
+/* Animaciones */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .container {
+        margin: 5px;
+        border-radius: 15px;
+    }
+    
+    .cost-display {
+        font-size: 36px;
+    }
+    
+    .info-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .btn {
+        min-width: 100px;
+        font-size: 12px;
+        padding: 12px 15px;
+    }
+}

@@ -1,22 +1,95 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#facc15" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    <meta name="apple-mobile-web-app-title" content="Speed Cabs" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <link rel="manifest" href="/manifest.json" />
-    <link rel="apple-touch-icon" href="/icon.svg" />
-    <title>Speed Cabs Zapotlan - Medidor GPS</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#facc15">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Taxímetro GPS - Speed Cabs</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>⚡ SPEED CABS ⚡</h1>
+            <p>TAXÍMETRO GPS</p>
+        </header>
+
+        <main class="display">
+            <div class="cost-display">
+                <span class="currency">$</span>
+                <span id="cost">50</span>
+                <span class="currency">MXN</span>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="label">DISTANCIA</div>
+                    <div id="km" class="value">0.000 km</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="label">ESPERA</div>
+                    <div id="wait-time" class="value">00:00</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="label">ESTADO</div>
+                    <div id="status" class="value">Detenido</div>
+                </div>
+            </div>
+
+            <div id="gps-info" class="gps-info">
+                <div class="label">GPS</div>
+                <div id="gps-status" class="value">No disponible</div>
+            </div>
+        </main>
+
+        <div class="controls">
+            <button id="start-btn" class="btn btn-start">INICIAR</button>
+            <button id="pause-btn" class="btn btn-pause" disabled>PAUSAR</button>
+            <button id="resume-btn" class="btn btn-resume" disabled style="display: none;">REANUDAR</button>
+            <button id="stop-btn" class="btn btn-stop" disabled>FINALIZAR</button>
+        </div>
+
+        <div class="rates">
+            <h3>📋 TARIFAS</h3>
+            <div class="rate-table">
+                <div class="rate-row">
+                    <span>0 - 4 km:</span>
+                    <span>$50 MXN</span>
+                </div>
+                <div class="rate-row">
+                    <span>4.1 - 5 km:</span>
+                    <span>$60 MXN</span>
+                </div>
+                <div class="rate-row">
+                    <span>5.1 - 6 km:</span>
+                    <span>$65 MXN</span>
+                </div>
+                <div class="rate-row">
+                    <span>6.1 - 7 km:</span>
+                    <span>$70 MXN</span>
+                </div>
+                <div class="rate-row">
+                    <span>7.1 - 8 km:</span>
+                    <span>$80 MXN</span>
+                </div>
+                <div class="rate-row">
+                    <span>8+ km:</span>
+                    <span>$80 + $16/km</span>
+                </div>
+                <div class="rate-row">
+                    <span>Tiempo espera:</span>
+                    <span>$3/min</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
 </html>
