@@ -54,38 +54,30 @@
             <button id="resume-btn" class="btn btn-resume" disabled style="display: none;">REANUDAR</button>
             <button id="stop-btn" class="btn btn-stop" disabled>FINALIZAR</button>
         </div>
+    </div>
 
-        <div class="rates">
-            <h3>📋 TARIFAS</h3>
-            <div class="rate-table">
-                <div class="rate-row">
-                    <span>0 - 4 km:</span>
-                    <span>$50 MXN</span>
+    <!-- Modal de resultado del viaje -->
+    <div id="trip-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🏁 VIAJE FINALIZADO</h2>
+            </div>
+            <div class="modal-body">
+                <div class="result-item">
+                    <span class="result-label">📏 Distancia recorrida:</span>
+                    <span id="modal-distance" class="result-value">0.000 km</span>
                 </div>
-                <div class="rate-row">
-                    <span>4.1 - 5 km:</span>
-                    <span>$60 MXN</span>
+                <div class="result-item">
+                    <span class="result-label">⏱️ Tiempo de espera:</span>
+                    <span id="modal-wait-time" class="result-value">0 min</span>
                 </div>
-                <div class="rate-row">
-                    <span>5.1 - 6 km:</span>
-                    <span>$65 MXN</span>
+                <div class="result-item total">
+                    <span class="result-label">💰 TOTAL A PAGAR:</span>
+                    <span id="modal-total" class="result-value total-amount">$0 MXN</span>
                 </div>
-                <div class="rate-row">
-                    <span>6.1 - 7 km:</span>
-                    <span>$70 MXN</span>
-                </div>
-                <div class="rate-row">
-                    <span>7.1 - 8 km:</span>
-                    <span>$80 MXN</span>
-                </div>
-                <div class="rate-row">
-                    <span>8+ km:</span>
-                    <span>$80 + $16/km</span>
-                </div>
-                <div class="rate-row">
-                    <span>Tiempo espera:</span>
-                    <span>$3/min</span>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="close-modal" class="btn btn-close">CERRAR</button>
             </div>
         </div>
     </div>

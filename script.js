@@ -242,14 +242,12 @@ stopBtn.addEventListener('click', () => {
     // Detener cronómetro de espera
     stopWaitTimer();
     
-    // Mostrar resumen final
+    // Calcular datos finales
     const finalCost = calculateCost(totalDistance, waitMinutes + (waitSeconds / 60));
     const totalWaitTime = waitMinutes + (waitSeconds / 60);
     
-    alert(`🏁 VIAJE FINALIZADO\n\n` +
-          `📏 Distancia: ${totalDistance.toFixed(3)} km\n` +
-          `⏱️ Tiempo espera: ${totalWaitTime.toFixed(1)} min\n` +
-          `💰 TOTAL A PAGAR: $${finalCost} MXN`);
+    // Mostrar modal con resultados
+    showTripModal(totalDistance, totalWaitTime, finalCost);
     
     // Resetear todo
     isRunning = false;
@@ -274,6 +272,35 @@ stopBtn.addEventListener('click', () => {
     stopBtn.disabled = true;
     
     updateDisplay();
+});
+
+// Función para mostrar el modal de resultado
+function showTripModal(distance, waitTime, totalCost) {
+    const modal = document.getElementById('trip-modal');
+    const modalDistance = document.getElementById('modal-distance');
+    const modalWaitTime = document.getElementById('modal-wait-time');
+    const modalTotal = document.getElementById('modal-total');
+    
+    // Actualizar contenido del modal
+    modalDistance.textContent = distance.toFixed(3) + ' km';
+    modalWaitTime.textContent = waitTime.toFixed(1) + ' min';
+    modalTotal.textContent = '$' + totalCost + ' MXN';
+    
+    // Mostrar modal
+    modal.style.display = 'block';
+}
+
+// Event listener para cerrar el modal
+document.getElementById('close-modal').addEventListener('click', () => {
+    document.getElementById('trip-modal').style.display = 'none';
+});
+
+// Cerrar modal al hacer clic fuera de él
+window.addEventListener('click', (event) => {
+    const modal = document.getElementById('trip-modal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
 });
 
 // Verificar disponibilidad de GPS al cargar
